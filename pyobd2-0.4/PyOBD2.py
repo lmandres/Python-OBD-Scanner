@@ -45,10 +45,10 @@ class PyOBD2:
             if self.interface:
                 self.interface.close()
                 self.interface.port.port.close()
-            self.interface = None
         except:
             print("Trying to reset empty interface.")
-            self.interface = None
+
+        self.interface = None
 
     def startInterface(self):
 
