@@ -123,7 +123,7 @@ class PyOBD2:
 
             resp = self.doRequest(sid=0x01, pid=0x0d)
             return_responses['velocity_kph'] = resp
-
+            return_responses['velocity_mph'] = resp * 0.621371
             return_responses['instant_mpg'] = (
                 return_responses['velocity_kph'] *
                 7.718 /
