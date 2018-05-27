@@ -38,7 +38,6 @@ class PyOBD2:
 
         return responses[0].values[0].value
 
-
     def resetInterface(self):
 
         try:
