@@ -175,7 +175,7 @@ class PyOBD2:
             self.interface._flush_frames()
         except obd.exception.CommandNotSupported as cns:
             print(cns)
-            interface._flush_frames()
+            self.interface._flush_frames()
         except NameError as ne:
             print(ne)
         except ValueError as ve:
