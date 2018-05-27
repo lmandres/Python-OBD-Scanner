@@ -29,7 +29,7 @@ class Application(tk.Frame):
 
         self.root.grid()
         self.createWidgets()
-        self.startInterface()
+
 
     def createWidgets(self):
 
@@ -117,8 +117,6 @@ class Application(tk.Frame):
             sticky=tk.N+tk.S+tk.E+tk.W
         )
         self.sixLabelVar.set('6')
-        
-                                
 
 if __name__ == '__main__':
 
@@ -127,8 +125,7 @@ if __name__ == '__main__':
 
     app = Application()
     app.master.title('PyOBD Gauges')
-    app.mainloop()
-    
+
     while True:
         data = pyobd2.runMonitor()
         if data:
@@ -140,9 +137,9 @@ if __name__ == '__main__':
             )
             app.twoLabelVar.set(
                 str(
-                    int(data['engine_rpm']) +
-                    '\nRPM'
-                )
+                    int(data['engine_rpm'])
+                ) +
+                '\nRPM'
             )
             app.threeLabelVar.set(
                 str(
@@ -168,3 +165,4 @@ if __name__ == '__main__':
                 ).ljust(5, '0')[:5] +
                 '\nMPH'
             )
+            app.update()
