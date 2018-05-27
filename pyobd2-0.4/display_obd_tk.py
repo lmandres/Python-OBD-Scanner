@@ -134,7 +134,7 @@ if __name__ == '__main__':
         if data:
             app.oneLabelVar.set(
                 str(
-                    data['engine_coolant_temp_degF
+                    data['engine_coolant_temp_degF']
                 ).ljust(5, '0')[:5] +
                 '\ndeg F'
             )
