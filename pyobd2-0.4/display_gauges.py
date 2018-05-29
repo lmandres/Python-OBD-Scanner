@@ -55,14 +55,15 @@ def draw_gauge(row, column, value_pct_in, text_1_in, text_2_in):
             )
         ]
     )
-    pygame.draw.circle(
+    pygame.draw.ellipse(
         screen,
         WHITE,
         [
-            int(width*((2.0*column)+1.0)/6.0),
-            int(height*((2.0*row)+1.0)/4.0)
+            int(width*((2.0*column)+1.0)/6.0)-radius,
+            int(height*((2.0*row)+1.0)/4.0)-radius,
+            2*radius,
+            2*radius
         ],
-        radius,
         2
     )  
     pygame.draw.rect(
@@ -109,7 +110,6 @@ if __name__ == "__main__":
     if radius > int(height/4.0):
         radius = int(height/4.0)
 
-
     done = False
 
     pyobd2 = PyOBD2.PyOBD2()
@@ -128,29 +128,53 @@ if __name__ == "__main__":
  
         for event in pygame.event.get(): # User did something
             if event.type == pygame.QUIT: # If user clicked close
-                done=True # Flag that we are done so we exit this loop
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    done=True 
+                done = True # Flag that we are done so we exit this loop
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                done = True 
  
         screen.fill(BLACK)
+                
+        value_pct = data['engine_coolant_temp_degF']/250/100
+        text_display_1 = str(
+            data['engine_coolant_temp_degF']
+        ).ljust(5, '0')[:5]
+        text_display_2 = 'deg F'
+        draw_gauge(0, 0, value_pct, text_display_1, text_display_2)
 
-        for i in range(0, 3, 1):
-            for j in range(0, 2, 1):
-                
-                text_display_1 = None
-                text_display_2 = None
-                
-                if j == 0:
-                    value_pct = data['engine_rpm']/70
-                    text_display_1 = str(data['engine_rpm'])
-                    text_display_2 = 'RPM'
-                else:
-                    value_pct = data['velocity_kph']/1.20
-                    text_display_1 = str(data['velocity_kph'])
-                    text_display_2 = 'KPH'
+        value_pct = data['engine_rpm']/7000/100
+        text_display_1 = str(
+            int(data['engine_rpm'])
+        )
+        text_display_2 = 'RPM'
+        draw_gauge(0, 1, value_pct, text_display_1, text_display_2)
+
+        value_pct = data['engine_consumption_gph']/5/100
+        text_display_1 = str(
+            data['engine_consumption_gph']
+        ).ljust(5, '0')[:5]
+        text_display_2 = 'GPH'
+        draw_gauge(0, 2, value_pct, text_display_1, text_display_2)
                     
-                draw_gauge(j, i, value_pct, text_display_1, text_display_2)
+        value_pct = data['average_mpg']/60/100
+        text_display_1 = str(
+            data['average_mpg']
+        ).ljust(6, '0')[:6]
+        text_display_2 = 'MPG'
+        draw_gauge(1, 0, value_pct, text_display_1, text_display_2)
+ 
+        value_pct = data['velocity_mph']/120/100
+        text_display_1 = str(
+            data['velocity_mph']
+        ).ljust(5, '0')[:5]
+        text_display_2 = 'MPH'
+        draw_gauge(1, 0, value_pct, text_display_1, text_display_2)
+ 
+        value_pct = data['control_module_voltage']/16/100
+        text_display_1 = str(
+            data['control_module_voltage']
+        ).ljust(5, '0')[:5]
+        text_display_2 = 'V'
+        draw_gauge(1, 0, value_pct, text_display_1, text_display_2)
  
         pygame.display.flip()
 
