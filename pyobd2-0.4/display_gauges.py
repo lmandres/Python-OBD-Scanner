@@ -106,7 +106,6 @@ if __name__ == "__main__":
 
     while True:
 
-        data = True 
         data = pyobd2.runMonitor()
         if not data:
             screen.fill(RED)
