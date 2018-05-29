@@ -89,7 +89,7 @@ def draw_gauge(row, column, value_pct_in, text_1_in, text_2_in):
 if __name__ == "__main__":
 
     pygame.init()
-    font = pygame.font.Font(None, 36)
+    font = pygame.font.Font(None, 48)
  
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     width = screen.get_width()
