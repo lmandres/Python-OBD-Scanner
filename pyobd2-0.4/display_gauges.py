@@ -13,7 +13,11 @@ GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
 
-def draw_gauge(row, column, value_pct_in):
+screen = None
+font = None
+radius = None
+
+def draw_gauge(row, column, value_pct_in, text_1_in, text_2_in):
 
     value_pct = value_pct_in
     if value_pct <= 0.0:
@@ -21,6 +25,36 @@ def draw_gauge(row, column, value_pct_in):
     elif 100.0 <= value_pct:
         value_pct = 100.0
 
+    text1 = font.render(text_1_in, False, WHITE) 
+    text2 = font.render(text_2_in, False, WHITE)
+
+    screen.blit(
+        text1,
+        [
+            (
+                int(width*((2.0*column)+1.0)/6.0) -
+                int(text1.get_width()/2)
+            ),
+            (
+                int(height*((2.0*row)+1.0)/4.0) +
+                int(radius/6)
+            )
+        ]
+    )
+    screen.blit(
+        text2,
+        [
+            (
+                int(width*((2.0*column)+1.0)/6.0) -
+                int(text2.get_width()/2)
+            ),
+            (
+                int(height*((2.0*row)+1.0)/4.0) +
+                text1.get_height() +
+                int(radius/6)
+            )
+        ]
+    )
     pygame.draw.circle(
         screen,
         WHITE,
@@ -65,6 +99,7 @@ def draw_gauge(row, column, value_pct_in):
 if __name__ == "__main__":
 
     pygame.init()
+    font = pygame.font.Font(None, 36)
  
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     width = screen.get_width()
@@ -73,6 +108,7 @@ if __name__ == "__main__":
     radius = int(width/6.0)
     if radius > int(height/4.0):
         radius = int(height/4.0)
+
 
     done = False
 
@@ -99,20 +135,20 @@ if __name__ == "__main__":
  
         screen.fill(BLACK)
 
-        pygame.draw.arc(screen, YELLOW,[210, 75, 150, 125], 0, pi/2, 2)
-        pygame.draw.arc(screen, GREEN,[210, 75, 150, 125], pi/2, pi, 2)
-        pygame.draw.arc(screen, BLUE, [210, 75, 150, 125], pi,3*pi/2, 2)
-        pygame.draw.arc(screen, RED,  [210, 75, 150, 125], 3*pi/2, 2*pi, 2)
-   
         for i in range(0, 3, 1):
             for j in range(0, 2, 1):
+                text_display = None
                 if j == 0:
                     value_pct = data['engine_rpm']/70
+                    text_display_1 = str(data['engine_rpm'])
+                    text_display_2 = 'RPM'
                 else:
                     value_pct = data['velocity_kph']/1.20
-                draw_gauge(j, i, value_pct)
+                    text_display_1 = str(data['velocity_kph'])
+                    text_display_2 = 'KPH'
+                draw_gauge(j, i, value_pct, text_display_1, text_display_2)
  
         pygame.display.flip()
 
-    #pyobd2.shutdown() 
+    pyobd2.shutdown() 
     pygame.quit()
