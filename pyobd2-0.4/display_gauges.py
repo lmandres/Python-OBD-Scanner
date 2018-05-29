@@ -65,18 +65,7 @@ def draw_gauge(row, column, value_pct_in, text_1_in, text_2_in):
             2*radius
         ],
         2
-    )  
-    #pygame.draw.rect(
-    #    screen,
-    #    BLUE,
-    #    [
-    #        int(width*((2.0*column)+1.0)/6.0)-radius,
-    #        int(height*((2.0*row)+1.0)/4.0)-radius,
-    #        2*radius,
-    #        2*radius
-    #    ],
-    #    2
-    #)
+    )
     pygame.draw.line(
         screen,
         RED,
