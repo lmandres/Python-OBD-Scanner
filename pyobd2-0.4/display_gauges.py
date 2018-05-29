@@ -137,7 +137,10 @@ if __name__ == "__main__":
 
         for i in range(0, 3, 1):
             for j in range(0, 2, 1):
-                text_display = None
+                
+                text_display_1 = None
+                text_display_2 = None
+                
                 if j == 0:
                     value_pct = data['engine_rpm']/70
                     text_display_1 = str(data['engine_rpm'])
@@ -146,6 +149,7 @@ if __name__ == "__main__":
                     value_pct = data['velocity_kph']/1.20
                     text_display_1 = str(data['velocity_kph'])
                     text_display_2 = 'KPH'
+                    
                 draw_gauge(j, i, value_pct, text_display_1, text_display_2)
  
         pygame.display.flip()
