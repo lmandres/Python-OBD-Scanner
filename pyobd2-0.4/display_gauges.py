@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Import a library of functions called 'pygame'
 import pygame
 from math import pi, cos, sin
@@ -83,6 +85,7 @@ if __name__ == "__main__":
         data = pyobd2.runMonitor()
         if not data:
             screen.fill(RED)
+            pygame.display.flip()
             continue
         elif done:
             break
