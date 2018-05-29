@@ -38,17 +38,16 @@ class PyOBD2:
 
         return responses[0].values[0].value
 
-
     def resetInterface(self):
 
         try:
             if self.interface:
                 self.interface.close()
                 self.interface.port.port.close()
-            self.interface = None
         except:
             print("Trying to reset empty interface.")
-            self.interface = None
+
+        self.interface = None
 
     def startInterface(self):
 
