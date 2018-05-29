@@ -134,47 +134,47 @@ if __name__ == "__main__":
  
         screen.fill(BLACK)
                 
-        value_pct = data['engine_coolant_temp_degF']/250/100
+        value_pct = data['engine_coolant_temp_degF']/(250.0/100.0)
         text_display_1 = str(
             data['engine_coolant_temp_degF']
         ).ljust(5, '0')[:5]
         text_display_2 = 'deg F'
         draw_gauge(0, 0, value_pct, text_display_1, text_display_2)
 
-        value_pct = data['engine_rpm']/7000/100
+        value_pct = data['engine_rpm']/(7000.0/100.0)
         text_display_1 = str(
             int(data['engine_rpm'])
         )
         text_display_2 = 'RPM'
         draw_gauge(0, 1, value_pct, text_display_1, text_display_2)
 
-        value_pct = data['engine_consumption_gph']/5/100
+        value_pct = data['engine_consumption_gph']/(5.0/100.0)
         text_display_1 = str(
             data['engine_consumption_gph']
         ).ljust(5, '0')[:5]
         text_display_2 = 'GPH'
         draw_gauge(0, 2, value_pct, text_display_1, text_display_2)
                     
-        value_pct = data['average_mpg']/60/100
+        value_pct = data['average_mpg']/(60.0/100.0)
         text_display_1 = str(
             data['average_mpg']
         ).ljust(6, '0')[:6]
         text_display_2 = 'MPG'
         draw_gauge(1, 0, value_pct, text_display_1, text_display_2)
  
-        value_pct = data['velocity_mph']/120/100
+        value_pct = data['velocity_mph']/(120.0/100.0)
         text_display_1 = str(
             data['velocity_mph']
         ).ljust(5, '0')[:5]
         text_display_2 = 'MPH'
-        draw_gauge(1, 0, value_pct, text_display_1, text_display_2)
+        draw_gauge(1, 1, value_pct, text_display_1, text_display_2)
  
-        value_pct = data['control_module_voltage']/16/100
+        value_pct = data['control_module_voltage']/(16.0/100.0)
         text_display_1 = str(
             data['control_module_voltage']
         ).ljust(5, '0')[:5]
         text_display_2 = 'V'
-        draw_gauge(1, 0, value_pct, text_display_1, text_display_2)
+        draw_gauge(1, 2, value_pct, text_display_1, text_display_2)
  
         pygame.display.flip()
 
