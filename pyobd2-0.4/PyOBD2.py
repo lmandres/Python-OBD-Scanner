@@ -3,10 +3,12 @@
 import obd
 from obd.message.request import OBDRequest
 
+import _thread
 import time
 import datetime
 
 from serial.serialutil import SerialException
+
 
 class PyOBD2:
 
@@ -18,7 +20,10 @@ class PyOBD2:
     last_counter = None
     current_counter = None
 
-    def __init__(self, serialport='/dev/ttyUSB1'):
+    monitorHash = None
+    runMonitorThread = None
+
+    def __init__(self, serialport='/dev/ttyUSB_OBD0'):
 
         self.serialport = serialport
         self.interface = None
@@ -30,13 +35,47 @@ class PyOBD2:
 
     def doRequest(self, sid=None, pid=None):
 
+        returnValue = None
+
         if not self.interface:
             self.startInterface()
 
-        request = obd.message.OBDRequest(sid=sid, pid=pid)
-        responses = self.interface.send_request(request)
+        try:
+            request = obd.message.OBDRequest(sid=sid, pid=pid)
+            responses = self.interface.send_request(request)
+            returnValue = responses[0].values[0].value
+        except SerialException as se:
+            print(se)
+            self.resetInterface()
+        except obd.exception.IntervalTimeout as ite:
+            print(ite)
+            self.resetInterface()
+        except obd.exception.ReadTimeout as rt:
+            print(rt)
+            self.resetInterface()
+        except obd.exception.ProtocolError as pe:
+            print(pe)
+            self.interface._flush_frames()
+        except obd.exception.DataError as de:
+            print(de)
+            self.interface._flush_frames()
+        except obd.exception.CommandNotSupported as cns:
+            print(cns)
+            self.interface._flush_frames()
+        except NameError as ne:
+            print(ne)
+        except ValueError as ve:
+            print(ve)
+        except IndexError as ie:
+            print(ie)
+        except AttributeError as ae:
+            print(ae)
+            self.resetInterface()
+        except AssertionError as ae:
+            print(ae)
+            self.resetInterface()
 
-        return responses[0].values[0].value
+        return returnValue
 
     def resetInterface(self):
 
@@ -94,6 +133,19 @@ class PyOBD2:
 
     def runMonitor(self):
 
+        def doThreadLoop():
+            self.monitorHash = self.doRequestData()
+            while self.runMonitorThread:
+                tempdata = self.doRequestData()
+                self.monitorHash.update(tempdata)
+
+        self.monitorHash = {}
+        self.runMonitorThread = True
+
+        _thread.start_new_thread(doThreadLoop, ())
+
+    def doRequestData(self):
+
         return_responses = {}
 
         self.last_counter = self.current_counter
@@ -101,34 +153,43 @@ class PyOBD2:
 
         mpg_total = None
 
-        try:
-            resp = self.doRequest(sid=0x01, pid=0x04)
+        resp = self.doRequest(sid=0x01, pid=0x04)
+        if resp:
             return_responses['calc_engine_load_pct'] = resp 
 
-            resp = self.doRequest(sid=0x01, pid=0x05)
+        resp = self.doRequest(sid=0x01, pid=0x05)
+        if resp:
             return_responses['engine_coolant_temp_degC'] = resp
             return_responses['engine_coolant_temp_degF'] = (
                 (resp * 1.8) + 32.0
             )
 
-            resp = self.doRequest(sid=0x01, pid=0x0c)
+        resp = self.doRequest(sid=0x01, pid=0x0c)
+        if resp:
             return_responses['engine_rpm'] = resp
 
-            resp = self.doRequest(sid=0x01, pid=0x10)
+        resp = self.doRequest(sid=0x01, pid=0x10)
+        if resp:
             return_responses['maf_air_flow_rate_gps'] = resp
             return_responses['engine_consumption_gph'] = (
                 resp * 0.0805
             )
 
-            resp = self.doRequest(sid=0x01, pid=0x0d)
+        resp = self.doRequest(sid=0x01, pid=0x0d)
+        if resp:
             return_responses['velocity_kph'] = resp
             return_responses['velocity_mph'] = resp * 0.621371
+
+        try:
             return_responses['instant_mpg'] = (
                 return_responses['velocity_kph'] *
                 7.718 /
                 return_responses['maf_air_flow_rate_gps']
             )
+        except KeyError:
+            pass 
 
+        try:
             mpg_total = (
                 (
                     self.average_mpg * (
@@ -152,45 +213,26 @@ class PyOBD2:
             )
             return_responses['average_mpg'] = self.average_mpg
 
-            resp = self.doRequest(sid=0x01, pid=0x42)
+        except KeyError:
+            pass
+
+        resp = self.doRequest(sid=0x01, pid=0x42)
+        if resp:
             return_responses['control_module_voltage'] = resp
+        
+        resp = self.doRequest(sid=0x01, pid=0x2f)
+        if resp:
+            return_responses['fuel_level_pct'] = resp
 
-            return return_responses
+        resp = self.doRequest(sid=0x01, pid=0xa6)
+        if resp:
+            return_responses['odometer_hm'] = resp
+            return_responses['odometer_km'] = resp * 10
 
-        except SerialException as se:
-            print(se)
-            self.resetInterface()
-        except obd.exception.IntervalTimeout as ite:
-            print(ite)
-            self.resetInterface()
-        except obd.exception.ReadTimeout as rt:
-            print(rt)
-            self.resetInterface()
-        except obd.exception.ProtocolError as pe:
-            print(pe)
-            self.interface._flush_frames()
-        except obd.exception.DataError as de:
-            print(de)
-            self.interface._flush_frames()
-        except obd.exception.CommandNotSupported as cns:
-            print(cns)
-            self.interface._flush_frames()
-        except NameError as ne:
-            print(ne)
-        except ValueError as ve:
-            print(ve)
-        except IndexError as ie:
-            print(ie)
-        except AttributeError as ae:
-            print(ae)
-            self.resetInterface()
-        except AssertionError as ae:
-            print(ae)
-            self.resetInterface()
-
-        return None
+        return return_responses
 
     def shutdown(self):
+        self.runMonitorThread = False
         self.interface.disconnect_from_vehicle()
         self.interface.close()
         self.resetInterface()
