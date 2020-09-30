@@ -93,7 +93,7 @@ class SerialPort(object):
         """Write the given string to the port"""
         self.port.flushOutput()
         self.port.flushInput()
-        self.port.write(str)
+        self.port.write(str.encode("utf-8"))
         return
 
     MAX_READ_OVERRUN = 0.01
@@ -118,32 +118,32 @@ class SerialPort(object):
                 # make sure the read() doesn't go beyond the timeout
                 if remaining < interval and interval >= self.MAX_READ_OVERRUN:
                     interval = remaining / 2.0
-                    self.port.setTimeout(interval)
+                    self.port.timeout = interval
                 # read() times out after the polling interval set by set_timeout()
                 c = self.port.read(1)
                 if len(c) == 0 and interval == self.interval:
                     # stop if the read timed out without data
                     raise exception.IntervalTimeout(response=buffer)
                 # FIXME: move 0x00 test to ELM327
-                if c == '\x00': continue  # per note on p.6 of ELM327 data sheet
-                buffer += c
+                if c == b'\x00': continue  # per note on p.6 of ELM327 data sheet
+                buffer += c.decode("utf-8")
                 if (buffer.endswith(str)):
                     break
         finally:
             # if we temporarily dialed down the port's timeout to avoid
             # galloping past the timeout, restore it to its previous value
             if interval != self.interval:
-                self.port.setTimeout(self.interval)
+                self.port.timeout = self.interval
 
         return buffer
 
     def get_baudrate(self):
         """Return the currently configured baud rate."""
-        return self.port.getBaudrate()
+        return self.port.baudrate
 
     def set_baudrate(self, baud):
         """Set the serial port baud rate."""
-        self.port.setBaudrate(baud)
+        self.port.baudrate = baud
         return
     
     def set_timeout(self, timeout, interval=None):
@@ -160,7 +160,7 @@ class SerialPort(object):
         if interval != self.interval:
             self.interval = interval
             # requires reconfiguring the port on some platforms, so avoid unnecessary calls
-            self.port.setTimeout(interval)
+            self.port.timeout = interval
         return
     
     def clear_rx_buffer(self):

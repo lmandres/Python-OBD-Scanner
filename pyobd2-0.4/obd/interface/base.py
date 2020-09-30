@@ -26,7 +26,7 @@
 """Implementation of base Interface class"""
 
 import copy
-import Queue
+import queue as Queue
 import time
 
 import obd.message
